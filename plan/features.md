@@ -2,11 +2,32 @@
 
 ### Primary Features
 
-+ Allow the user to add passwords. Have the following fields:
++ Allow the user to add passwords (`add`).
+  - Have the following fields:
     - `service`: The site, e.g. `github`, `leetcode`.
     - `username`: User's username on the site. Example: `yomama123`.
     - `password`: The password to the site.
     - `email`: The email used to sign in to the site.
+
+  - Have switches for specifying these fields:
+    - `-s/--service` for `service`.
+    - `-u/--username` for `username`.
+    - `-p/--password` for `password`.
+    - `-e/--email` for `email`.
+
+  - If the user doesn't use those switches, ask for the fields individually. Example:
+    
+    ```
+    $ keystash add
+    Verify your identity. Enter master password: <master password>
+    Adding password. Please fill the fields below:
+      Service:
+      Username:
+      Password:
+      Email:
+    
+    Password added successfully.
+    ```
 
 + Allow the user to delete passwords. Completely remove the entry.
 + Save the passwords in a json file.
