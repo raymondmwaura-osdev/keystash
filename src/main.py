@@ -1,5 +1,6 @@
-from features import add
-import argparse
+from src.utils import constants
+from src.features import add
+import argparse, getpass
 
 parser = argparse.ArgumentParser(prog="KeyStash")
 subparsers = parser.add_subparsers(dest="cmd")
@@ -18,6 +19,8 @@ email_group.add_argument("-e", "--email", dest="email")
 email_group.add_argument("--noemail", action="store_true", dest="no_email")
 
 args = parser.parse_args()
+constants.MASTER_PASSWORD = getpass.getpass("Enter master password: "
+    ).encode(encoding="utf-8")
 if args.cmd == "add":
     add.add_password(
         service=args.service,
