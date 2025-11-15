@@ -11,11 +11,15 @@ class AddCredentials:
         email: str
     ):
         vault_encrypted = True
+        self.service = service
+        self.password = password
+        self.username = username
+        self.email = email
         self.credentials = {
-            "service": service,
-            "password": password,
-            "username": username,
-            "email": email,
+            "service": self.service,
+            "password": self.password,
+            "username": self.username,
+            "email": self.email,
             "date": date.today().strftime("%Y-%m-%d")
         }
 
@@ -42,8 +46,14 @@ class AddCredentials:
             for scan in duplicate_scans
         ):
             sys.exit()
-
-        print("No duplicates found.")
+        
+        # Write if no duplicates are found.
+        storage.write_json(
+            contents=self.credentials,
+            file=constants.VAULT,
+            encrypted=True,
+            master_password=constants.MASTER_PASSWORD
+        )
 
     def check_exact_duplicate(self) -> bool:
         """
@@ -61,17 +71,41 @@ class AddCredentials:
         """
         duplicate_credentials = filter_credentials(
             self.vault_contents,
-            service=self.credentials["service"],
-            password=self.credentials["password"],
-            username=self.credentials["username"],
-            email=self.credentials["email"]
+            self.service,
+            self.password,
+            self.username,
+            self.email
         )
 
-        if len(duplicate_credentials) == 0:
-            return False
+        if not duplicate_credentials: return False
 
         print("Identical credentials already exist. No changes made.")
         return True
+
+    def check_same_everything_different_password(self) -> bool:
+        similar_credentials = filter_credentials(
+            self.vault_contents,
+            service=self.service,
+            username=self.username,
+            email=self.email
+        )
+        if not similar_credentials: return False
+
+        # Prompt the user.
+        if self.username and self.email:
+            output = f"A credential for '{self.service}' with username '{self.username}' and email '{self.email}' already exist."
+        elif self.username:
+            output = f"A credential for '{self.service}' with username '{self.username}' already exists."
+        elif self.email:
+            output = f"A credential for '{self.service}' with email '{self.email}' already exists."
+        else:
+            output = f"A credential for '{self.service}' already exists."
+        
+        print(output)
+        while True:
+            user_instruction = input("Overwrite existing pasword? (y/n): ")
+            if user_instruction.lower() == 'y': return False
+            elif user_instruction.lower() == 'n': return True
 
 def filter_credentials(
     credentials: list[dict],
@@ -93,7 +127,7 @@ def filter_credentials(
 
     Returns:
         list[dict]: A list of all credential dictionaries matching
-        the given search criteria. Returns an empty list if no match is found.
+        the given search criteria. Returns 'credentials' if no match is found.
     """
     filters = {
         "service": service,
