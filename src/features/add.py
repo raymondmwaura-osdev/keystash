@@ -46,8 +46,19 @@ class AddCredentials:
         print("No duplicates found.")
 
     def check_exact_duplicate(self) -> bool:
-        """Check if the vault contains an exact duplicate of the
-        credentials to save."""
+        """
+        Determine whether an identical credential entry already exists in the vault.
+
+        
+        This method evaluates the vault’s stored credentials against
+        the candidate credential set (`self.credentials`). If one or
+        more exact duplicates are identified, the method reports the
+        condition and returns `True`; otherwise, it returns `False`.
+
+        Returns:
+            bool: `True` if an exact duplicate exists.
+                  `False` if no identical credential entry is present.
+        """
         duplicate_credentials = filter_credentials(
             self.vault_contents,
             service=self.credentials["service"],
