@@ -17,14 +17,15 @@ cred2 = {
     "email": "email2"
 }
 
-def test_check_exact_duplicate(monkeypatch, mocker, tmp_path, capsys):
+## FIXTURES.
+@pytest.fixture
+def my_mocks(mocker, tmp_path, monkeypatch):
     """
-    Validate that `add.AddCredentials` exits without modifying the vault, when the
-    vault contains a credential record exactly matching the new credential.
+    Create mocks of functions and objects used in `AddCredentials`.
     """
-    # Mocks.
-    storage_read_mock = mocker.Mock()
-    storage_read_mock.return_value = [cred1, cred2]
+    storage_read_mock = mocker.Mock(
+        return_value = [cred1, cred2]
+    )
     mocker.patch("src.features.add.storage.read_json", storage_read_mock)
 
     storage_write_mock = mocker.Mock()
@@ -34,11 +35,24 @@ def test_check_exact_duplicate(monkeypatch, mocker, tmp_path, capsys):
     vault.touch()
     monkeypatch.setattr("src.features.add.constants.VAULT", vault)
 
-    ##
+    return storage_read_mock, storage_write_mock, vault
+
+@pytest.fixture
+def storage_write_mock(my_mocks):
+    """
+    Set up mocks and return only the mock for 'storage.write_json'.
+    """
+    return my_mocks[1]
+
+## Test Functions
+def test_check_exact_duplicate(storage_write_mock, capsys):
+    """
+    Validate that `add.AddCredentials` exits without modifying the vault, when the
+    vault contains a credential record exactly matching the new credential.
+    """
     with pytest.raises(SystemExit):
         add.AddCredentials(**cred1)
 
     output = capsys.readouterr()
     assert output.out == "Identical credentials already exist. No changes made.\n"
     assert not storage_write_mock.called
-
