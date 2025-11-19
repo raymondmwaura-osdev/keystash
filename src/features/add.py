@@ -39,7 +39,8 @@ class AddCredentials:
 
         # Scan the vault for duplicates.
         duplicate_scans = [
-            self.check_exact_duplicate
+            self.check_exact_duplicate,
+            self.check_same_everything_different_password
         ]
         if any(
             scan()
@@ -83,12 +84,23 @@ class AddCredentials:
         return True
 
     def check_same_everything_different_password(self) -> bool:
+        """
+        Check whether the vault contains a credential matching the input
+        attributes but using a different password.
+
+        The lookup keys are: service, username, and email from `self.credentials`.
+        If a match is identified, the user is prompted to authorize an overwrite.
+
+        Return False when the user approves the overwrite or when no matching
+        credential exists. Return True when the user declines the overwrite.
+        """
         similar_credentials = filter_credentials(
             self.vault_contents,
             service=self.service,
             username=self.username,
             email=self.email
         )
+        
         if not similar_credentials: return False
 
         # Prompt the user.
