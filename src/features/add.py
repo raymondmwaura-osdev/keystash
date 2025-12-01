@@ -2,6 +2,21 @@ from src.utils import constants, storage
 from datetime import date
 import pathlib, json, sys
 
+def build_cli(subparsers):
+    """
+    Build the CLI for the 'add' command.
+    """
+    add_parser = subparsers.add_parser("add")
+    add_parser.add_argument("-s", "--service", dest="service", required=True)
+
+    username_group = add_parser.add_mutually_exclusive_group(required=False)
+    username_group.add_argument("-u", "--username", dest="username")
+    username_group.add_argument("--nousername", dest="no_username", action="store_true")
+
+    email_group = add_parser.add_mutually_exclusive_group(required=False)
+    email_group.add_argument("-e", "--email", dest="email")
+    email_group.add_argument("--noemail", dest="no_email", action="store_true")
+
 class AddCredentials:
     def __init__(
         self,
