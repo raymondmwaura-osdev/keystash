@@ -14,6 +14,7 @@ This is how the program should work.
 + **Secure storage**: The credentials will encrypted and saved in a file. The contents should be encrypted using AES encryption with a key derived from a password provided by the user. The user will be prompted for the password while both encrypting and decrypting. This ensures that only the user can read the credentials.
 + **View saved credentials**: The user should be able to view the saved credentials. Optionally, for added security, instead of showing the password, the program should instead copy the password to the clipboard. This ensures that the password will not be in plain text at any given time.
 + **Remove credentials**: The user should also be able to completely remove credentials from the vault. The program should ensure that the credentials are removed and unrecoverable, for added security. Since this action is not reversible, ask the user to do something like write the name of the service whose password is being deleted, to make sure that the user wants to proceed with the removal of the credentials.
++ **Change master password**: Allow the user to change the password used to encrypt and decrypt the vault.
 
 ---
 
