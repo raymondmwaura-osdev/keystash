@@ -6,17 +6,20 @@ import argparse, getpass
 parser = argparse.ArgumentParser(prog="KeyStash")
 subparsers = parser.add_subparsers(dest="cmd")
 
-features_cli = [add]
-for feature in features_cli:
-    feature.build_cli(subparsers)
+build_cli_functions = [add.build_cli]
+for build_cli in build_cli_functions:
+    build_cli(subparsers)
 
-args = parser.parse_args()
+cli_args = parser.parse_args()
+
+# Get master password.
 constants.MASTER_PASSWORD = getpass.getpass("Enter master password: "
     ).encode(encoding="utf-8")
-if args.cmd == "add":
-    AddCredentials(
-        service=args.service,
-        password=args.password,
-        username=args.username,
-        email=args.email
+
+# Features.
+if cli_args.cmd == "add":
+    add.Add(
+        service=cli_args.service,
+        username=cli_args.username,
+        email=cli_args.email
     )
