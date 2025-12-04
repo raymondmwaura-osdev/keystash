@@ -22,26 +22,26 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
+from src.utils import constants
 import pathlib, base64, os
 
 # NOTE: The functions are arranged alphabetically.
 
-def decrypt(encrypted_contents: bytes, master_password: bytes, salt: bytes) -> bytes:
+def decrypt(encrypted_contents: bytes, salt: bytes) -> bytes:
     """
-    Decrypt data using a key derived from a master password and salt.
+    Decrypt data using a key derived from the master password and salt.
 
     This function reverses the encryption performed by `encrypt()` by
     regenerating the same Fernet key and decrypting the ciphertext.
 
     Parameters:
         encrypted_contents (bytes): The ciphertext to decrypt.
-        master_password (bytes): The master password used for encryption.
         salt (bytes): The salt originally used for key derivation.
 
     Returns:
         bytes: The decrypted plaintext data.
     """
-    key = generate_key(master_password, salt)
+    key = generate_key(constants.MASTER_PASSWORD, salt)
     return Fernet(key).decrypt(encrypted_contents)
 
 def encrypt(contents: bytes, master_password: bytes) -> tuple[bytes, bytes]:

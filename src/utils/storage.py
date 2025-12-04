@@ -47,9 +47,7 @@ def read_vault() -> list:
     )
 
     contents = crypto_utils.decrypt(
-        encrypted_content,
-        constants.MASTER_PASSWORD,
-        salt
+        encrypted_content, salt
     ).decode("utf-8")
 
     return json.loads(contents)
