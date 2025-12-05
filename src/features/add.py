@@ -23,8 +23,8 @@ Exit.
 + The `Add` class should join all the other classes and functions together.
 """
 from getpass import getpass
-import secrets, string
-import storage
+from src.utils import storage
+import secrets, string, sys
 
 ## Functions.
 def build_cli(subparsers):
@@ -70,15 +70,52 @@ def generate_password():
 
     return password
 
+def filter_credentials(
+    credentials: list[dict],
+    *,
+    service: str = None,
+    password: str = None,
+    username: str = None,
+    email: str = None,
+) -> list[dict]:
+    """
+    Return a list of entries in 'credentials' with the same values
+    as the ones provided ('service', 'password', 'username', 'email').
+    Return all the credentials if none of the values are provided.
+    """
+    filters = {
+        "service": service,
+        "password": password,
+        "username": username,
+        "email": email
+    }
+    
+    return [
+        cred
+        for cred in credentials
+        if all(
+            cred[key] == value or value == None
+            for key, value in filters.items()
+        )
+    ]
+
 ## Classes.
 class Add:
     def __init__(self, service: str, username: str, email: str) -> None:
         self.service = service
-        self.username = username
-        self.email = email
-        self.password = self.get_password()
+        password = self.get_password()
 
-        self.vault_contents = storage.read_vault()
+        self.candidate = {
+            "service": service,
+            "password": password,
+            "username": username,
+            "email": email
+        }
+
+        vault_contents = storage.read_vault()
+        print(vault_contents)
+
+        new_contents = DuplicatesChecker(self.candidate, vault_contents)
 
     def get_password(self) -> str:
         """
@@ -95,3 +132,48 @@ class Add:
             print("Generated a strong password.")
 
         return password
+
+class DuplicatesChecker:
+    """
+    Scan the given 'credentials' for credentials that are similar
+    to the given 'candidate'.
+    Return credentials to write to the vault.
+
+    This class scans the given 'credentials' for credential entries
+    similar to the given 'candidate'. Depending on the findings, the
+    class will either exit the program or edit and return 'credentials'.
+
+    The returned 'credentials' is will contain the 'candidate' credentials
+    and will be ready to be written in the vault file. This will only
+    happen if either no duplicate credentials are found, or if the user
+    chose to overwrite the duplicate credentials. If duplicate credentials
+    exist and the user chose to preserve the already existing credentials,
+    the class will exit the program.
+    """
+    def __init__(self, candidate: dict, credentials: list) -> list:
+        self.credentials = credentials
+        self.candidate = candidate
+        self.new_credentials = []
+
+        check_functions = [
+            self.check_exact_duplicate
+        ]
+        if any(
+            function()
+            for function in check_functions
+        ):
+            sys.exit(0)
+
+        return self.new_credentials
+
+    def check_exact_duplicate(self):
+        """
+        Return True if 'self.credentials' contain an exact duplicate of
+        'self.candidate'. Otherwise, return False.
+        """
+        exact_duplicates = filter_credentials(self.credentials, **self.candidate)
+        if len(exact_duplicates) == 1:
+            print("Identical credentials already exist! No changes made.")
+            return True
+        
+        return False
