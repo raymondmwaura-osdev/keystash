@@ -123,7 +123,7 @@ The same password is already used by another entry, regardless of service, usern
 
 ---
 
-## New Service
+### New Service
 
 **Condition:**
 No entry exists for the specified service.
