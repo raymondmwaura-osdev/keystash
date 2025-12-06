@@ -76,18 +76,25 @@ class TestFilterCredentials:
     ]
     def test_exact_duplicate(self):
         """
-        Assert that 'add.filter_credentials' returns exact duplicates
-        of the candidate, found in the credentials list.
+        Assert that 'add.filter_credentials' returns an exact duplicate
+        of the candidate if it exists in the credentials list.
         """
         candidate = self.credentials[0]
-        duplicate = add.filter_credentials(self.credentials, **candidate)
-        assert duplicate[0] == candidate
+        duplicate = add.filter_credentials(self.credentials, **candidate, exact_match=True)
+        assert duplicate == candidate
 
     def test_no_fields(self):
         """
         Assert that 'add.filter_credentials' returns all the credentials
         when none of the filter fields (service, password, username, or email)
-        are provided.
+        are provided and the 'exact_match' parameter is set to False.
+
+        Assert also that 'add.filter_credentials' returns None when
+        none of the filter fields are provided and the 'exact_match' parameter
+        is set to True
         """
-        duplicates = add.filter_credentials(self.credentials)
+        duplicates = add.filter_credentials(self.credentials, exact_match=False)
         assert duplicates == self.credentials
+
+        duplicates = add.filter_credentials(self.credentials, exact_match=True)
+        assert duplicates == None
