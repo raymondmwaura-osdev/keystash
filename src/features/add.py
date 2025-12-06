@@ -92,11 +92,30 @@ def filter_credentials(
     password: str = None,
     username: str = None,
     email: str = None,
+    exact_match: bool = False
 ) -> list[dict]:
     """
-    Return a list of entries in 'credentials' with the same values
-    as the ones provided ('service', 'password', 'username', 'email').
-    Return all the credentials if none of the values are provided.
+    Filter a list of credential records based on the fields provided.
+
+    Each record is a dict with keys: 'service', 'password', 'username', and 'email'.
+
+    Parameters:
+        service, password, username, email:
+            Values to match against each credential. Fields you leave as None
+            are handled based on the 'exact_match' flag.
+
+        exact_match:
+            - If False (default): A field you leave as None will match any value.
+              Example: if email is None, credentials with any email value can match
+              as long as the other provided fields match.
+
+            - If True: A field you leave as None will only match credentials
+              where that field is also None. If you provide no fields at all,
+              the result will be an empty list unless a credential has all values
+              set to None.
+
+    Returns:
+        A list of credentials that match the filter rules.
     """
     filters = {
         "service": service,
@@ -104,12 +123,13 @@ def filter_credentials(
         "username": username,
         "email": email
     }
-    
+
     return [
         cred
         for cred in credentials
         if all(
-            cred[key] == value or value == None
+            (cred[key] == value) if exact_match
+            else (cred[key] == value or value == None)
             for key, value in filters.items()
         )
     ]
@@ -138,7 +158,7 @@ class DuplicatesChecker:
     similar to the given 'candidate'. Depending on the findings, the
     class will either exit the program or edit and return 'credentials'.
 
-    The returned 'credentials' is will contain the 'candidate' credentials
+    The returned 'credentials' will contain the 'candidate' credentials
     and will be ready to be written in the vault file. This will only
     happen if either no duplicate credentials are found, or if the user
     chose to overwrite the duplicate credentials. If duplicate credentials
@@ -176,3 +196,17 @@ class DuplicatesChecker:
             return True
         
         return False
+
+    def check_same_everything_different_password(self):
+        """
+        Handle password update when a credential exists with the same
+        service, username, and email, but different password.
+
+        If the credential exists, the user will be prompted on whether
+        to update or discard the password.
+
+        Return True and edit `self.credentials` if the user decides
+        to preserve the existing password.
+        Return False if the user decides to update the password.
+        """
+        pass
