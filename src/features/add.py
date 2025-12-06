@@ -91,7 +91,7 @@ def filter_credentials(
     service: str | None = "any",
     password: str | None = "any",
     username: str | None = "any",
-    email: str | None = "any",
+    email: str | None = "any"
 ) -> list[dict]:
     """
     Filter credential records based on explicit matching rules.
@@ -171,6 +171,30 @@ class DuplicatesChecker:
     def __init__(self, credentials: list, candidate: dict) -> list:
         self.credentials = credentials
         self.candidate = candidate
+
+        self.service = candidate["service"]
+        self.username = candidate["username"]
+        self.email = candidate["email"]
+
+        """
+        The duplicate check method will scan `self.credentials`. If it
+        finds a duplicate, it will prompt the user (where applicable)
+        and edit `self.new_credentials` accordingly.
+
+        If another duplicate check method finds a duplicate in
+        `self.credentials`, and the duplicate was overwritten in
+        `self.new_credentials` by one of the previously called functions,
+        this would cause unwanted behavior.
+
+        To prevent this, the duplicate check methods should check
+        that the duplicates are contained in both `self.credentials`
+        and `self.new_credentials`.
+
+        The duplicate check method will not scan `self.new_credentials`
+        because `self.candidate` may be written in `self.new_credentials`
+        by a previous method, and this would be a false match.
+        """
+        self.new_credentials = self.credentials # Will be returned and written to the vault.
  
     def check_all(self):
         """
@@ -207,14 +231,42 @@ class DuplicatesChecker:
 
         If the credential exists, the user will be prompted on whether
         to update or discard the password.
+        Return False if the credential doesn't exist.
 
-        Return True and edit `self.credentials` if the user decides
-        to preserve the existing password.
-        Return False if the user decides to update the password.
+        Return True if the user decides to preserve the existing password.
+        Return False and edit `self.new_credentials` if the user decides
+        to update the password.
         """
+        # Scan.
         duplicate = filter_credentials(
             self.credentials,
-            service=self.candidate["service"],
-            username=self.candidate["username"],
-            email=self.candidate["email"]
+            service=self.service,
+            username=self.username,
+            email=self.email
         )
+        if not duplicate: return False
+
+        # Prompt.
+        if self.username:
+            output = f"A credential for \"{self.service}\" with username {self.username} already exists."
+        elif self.email:
+            output = f"A credential for \"{self.service}\" with email {self.email} already exists."
+        else:
+            output = f"A credential for \"{self.service}\" already exists."
+        print(output)
+
+        for _ in range(3):
+            overwrite = input("Overwrite existing password? (y/n): ")
+            if overwrite.lower() in ["y", "n"]: break
+
+            print("Invalid input! Try Again.")
+
+        else: return True # Exit if the user enters invalid input 3 times.
+
+        if overwrite.lower() == "n": return True
+
+        # Overwrite.
+        index = self.new_credentials.index(duplicate[0])
+        self.new_credentials[index] = self.candidate
+        return False
+
