@@ -1,6 +1,6 @@
 # Unit tests for `src.features.add.py`.
 from src.features import add
-import string
+import pytest
 
 def test_generate_password():
     """
@@ -18,6 +18,45 @@ def test_generate_password():
         any(char.islower() for char in password) and
         sum(char.isdigit() for char in password) >= 3
     )
+
+class TestGetPassword:
+    # Unit tests for 'add.get_password'.
+    @pytest.fixture
+    def get_password_mock(self, mocker):
+        """
+        Setup mocks for methods in this class.
+        """
+        getpass_mock = mocker.patch("src.features.add.getpass")
+        generate_password_mock = mocker.patch(
+            "src.features.add.generate_password",
+            return_value="StrongPassword123"
+        )
+        
+        return getpass_mock, generate_password_mock
+
+    def test_get_password_without_input(self, get_password_mock):
+        """
+        Assert that 'add.get_password' generates and returns a strong
+        password when no password is entered by the user.
+        """
+        getpass_mock, generate_password_mock = get_password_mock
+        getpass_mock.return_value = ""
+
+        password = add.get_password()
+        assert password == "StrongPassword123"
+        generate_password_mock.assert_called_once()
+
+    def test_get_password_with_input(self, get_password_mock):
+        """
+        Assert that 'add.get_password' returns the password
+        entered by the user.
+        """
+        getpass_mock, generate_password_mock = get_password_mock
+        getpass_mock.return_value = "password123"
+
+        password = add.get_password()
+        assert password == "password123"
+        assert not generate_password_mock.called
 
 class TestFilterCredentials:
     # Unit tests for 'add.filter_credentials'.
