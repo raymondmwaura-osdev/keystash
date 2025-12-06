@@ -145,21 +145,25 @@ class DuplicatesChecker:
     exist and the user chose to preserve the already existing credentials,
     the class will exit the program.
     """
-    def __init__(self, candidate: dict, credentials: list) -> list:
+    def __init__(self, credentials: list, candidate: dict) -> list:
         self.credentials = credentials
         self.candidate = candidate
-        self.new_credentials = []
-
-        check_functions = [
+ 
+    def check_all(self):
+        """
+        Run all duplicate checks and return the final credentials to write
+        to the vault.
+        """
+        check_duplicate_functions = [
             self.check_exact_duplicate
         ]
         if any(
             function()
-            for function in check_functions
+            for function in check_duplicate_functions
         ):
             sys.exit(0)
 
-        return self.new_credentials
+        return self.credentials
 
     def check_exact_duplicate(self):
         """
