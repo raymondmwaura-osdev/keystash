@@ -88,35 +88,30 @@ def get_password() -> str:
 def filter_credentials(
     credentials: list[dict],
     *,
-    service: str = None,
-    password: str = None,
-    username: str = None,
-    email: str = None,
-    exact_match: bool = False
-) -> list[dict] | dict | None:
+    service: str | None = "any",
+    password: str | None = "any",
+    username: str | None = "any",
+    email: str | None = "any",
+) -> list[dict]:
     """
-    Filter credential records based on the fields provided.
+    Filter credential records based on explicit matching rules.
 
-    Each record is a dict with the keys: 'service', 'password', 'username', and 'email'.
+    Each record is a dict with keys: 'service', 'password', 'username', and 'email'.
+
+    For each filter field (service, password, username, email), you may provide:
+        - An actual value: only credentials with the same value will match.
+        - None: only credentials where the field is None will match.
+        - "any": the field is ignored and all values match.
 
     Parameters:
         service, password, username, email:
-            Values used for filtering. Fields set to None are handled differently
-            depending on 'exact_match'.
-
-        exact_match:
-            - If False (default):
-                A field set to None matches any value. The function returns a list
-                of all credentials that satisfy the provided filters.
-            
-            - If True:
-                A field set to None only matches credentials where that field
-                is also None. The function returns a single dictionary (the first
-                credential that matches exactly) or None if there is no match.
+            The rule for each field. Each must be either:
+            - A concrete value (string)
+            - None
+            - "any"
 
     Returns:
-        - When exact_match=False: list[dict]
-        - When exact_match=True: dict or None
+        A list of all credentials that satisfy all provided rules.
     """
     filters = {
         "service": service,
@@ -131,16 +126,10 @@ def filter_credentials(
         filter fields. False if they differ.
         """
         return all(
-            (cred[key] == value) if exact_match
-            else (cred[key] == value or value == None)
+            True if value == "any"
+            else cred[key] == value
             for key, value in filters.items()
         )
-
-    if exact_match:
-        for cred in credentials:
-            if matches(cred):
-                return cred
-        return None
 
     return [
         cred
@@ -204,8 +193,7 @@ class DuplicatesChecker:
         Return True if 'self.credentials' contain an exact duplicate of
         'self.candidate'. Otherwise, return False.
         """
-        exact_duplicate = filter_credentials(
-            self.credentials, **self.candidate, exact_match=True)
+        exact_duplicate = filter_credentials(self.credentials, **self.candidate)
         if exact_duplicate:
             print("Identical credentials already exist! No changes made.")
             return True
@@ -224,4 +212,9 @@ class DuplicatesChecker:
         to preserve the existing password.
         Return False if the user decides to update the password.
         """
-        pass
+        duplicate = filter_credentials(
+            self.credentials,
+            service=self.candidate["service"],
+            username=self.candidate["username"],
+            email=self.candidate["email"]
+        )
