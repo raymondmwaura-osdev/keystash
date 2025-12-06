@@ -53,7 +53,7 @@ def generate_password():
         Length: 16 characters
         Characters: uppercase and lowercase letters, digits, symbols.
         Avoids the following symbols: `'"\\|<>
-        Has at least one uppercase letter, one lowercase letter, and one symbol.
+        Has at least one uppercase letter, one lowercase letter.
         Has at least 3 numbers.
     """
     password_length = 16
@@ -67,6 +67,21 @@ def generate_password():
         and any(char.islower() for char in password)
         and sum(char.isdigit() for char in password) >= 3):
             break
+
+    return password
+
+def get_password() -> str:
+    """
+    Get the password to store from the user or generate one.
+    Return the password as a string.
+    """
+    print(f"Enter the password to store.")
+    print("Leave blank to generate a random password.")
+    password = getpass("Password: ")
+
+    if not password:
+        password = generate_password()
+        print("Generated a strong password.")
 
     return password
 
@@ -102,10 +117,8 @@ def filter_credentials(
 ## Classes.
 class Add:
     def __init__(self, service: str, username: str, email: str) -> None:
-        self.service = service
-        password = self.get_password()
-
-        self.candidate = {
+        password = get_password()
+        candidate = {
             "service": service,
             "password": password,
             "username": username,
@@ -113,25 +126,7 @@ class Add:
         }
 
         vault_contents = storage.read_vault()
-        print(vault_contents)
-
-        new_contents = DuplicatesChecker(self.candidate, vault_contents)
-
-    def get_password(self) -> str:
-        """
-        Get the password to store from the user or generate one.
-
-        Returns the password as a string.
-        """
-        print(f"Enter the password for \"{self.service}\".")
-        print("Leave blank to generate a random password.")
-        password = getpass("Password: ")
-
-        if not password:
-            password = generate_password()
-            print("Generated a strong password.")
-
-        return password
+        new_contents = DuplicatesChecker(candidate, vault_contents)
 
 class DuplicatesChecker:
     """
