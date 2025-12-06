@@ -19,11 +19,22 @@ def get_credentials():
         }
     ]
 
-class TestCheckExactDuplicate:
-    # Unit tests for 'DuplicatesChecker.check_exact_duplicate'.
-    def test_exact_duplicate(self):
-        """
-        Assert that 'DuplicatesChecker.check_exact_duplicate' returns True
-        when an exact duplicate is found.
-        """
-        pass
+def test_check_exact_duplicate(get_credentials):
+    """
+    Assert that 'DuplicatesChecker.check_exact_duplicate' returns True
+    when an exact duplicate is found, and False otherwise.
+    """
+    candidate = get_credentials[0]
+    return_value = DuplicatesChecker(
+        get_credentials, candidate).check_exact_duplicate()
+    assert return_value
+
+    candidate = {
+        "service": "service3",
+        "password": "password3",
+        "username": "username3",
+        "email": "email3"
+    }
+    return_value = DuplicatesChecker(
+        get_credentials, candidate).check_exact_duplicate()
+    assert not return_value
