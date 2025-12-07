@@ -39,19 +39,38 @@ def test_check_exact_duplicate(credentials):
         credentials, candidate).check_exact_duplicate()
     assert not return_value
 
-def test_check_same_everything_different_password(credentials):
+def test_check_same_everything_different_password(credentials, mocker):
     """
     Assert that 'DuplicatesChecker.check_same_everything_different_password':
         + Returns False when no duplicate is found.
         + Returns True, without editing 'self.new_credentials' when the user
             decides to preserve the existing credential.
-        + Returns True when the user enters invalid input 3 times.
+        + Prompts the user 3 times and returns True on invalid input.
         + Returns False, and correctly edits 'self.new_credentials' when the
             user decides to overwrite the existing credential.
     """
+    # Setup.
+    matching_candidate = credentials[0].copy() # Create shallow copy to preserve 'credentials'.
+    matching_candidate["password"] = "different password" # Same everything, different password.
+
+    mismatching_candidate = credentials[0].copy()
+    mismatching_candidate["service"] = "different service" # Cause service mismatch.
+
     # Return False when no duplicate is found.
-    candidate = credentials[0].copy() # Create shallow copy to preserve 'credentials'.
-    candidate["service"] = "different service"
     return_value = DuplicatesChecker(
-        credentials, candidate).check_same_everything_different_password()
+        credentials, mismatching_candidate).check_same_everything_different_password()
     assert not return_value
+
+    # Return True when user enters "n".
+    mocker.patch("src.features.add.input", return_value = "n")
+    return_value = DuplicatesChecker(
+        credentials, matching_candidate).check_same_everything_different_password()
+    assert return_value
+
+    # Call 'input' 3 times and return True with invalid input.
+    input_mock = mocker.patch("src.features.add.input", return_value = "invalid")
+    return_value = DuplicatesChecker(
+        credentials, matching_candidate).check_same_everything_different_password()
+
+    assert input_mock.call_count == 3
+    assert return_value
