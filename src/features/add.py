@@ -177,13 +177,13 @@ class DuplicatesChecker:
         self.email = candidate["email"]
 
         """
-        The duplicate check method will scan `self.credentials`. If it
+        The duplicate check methods will scan `self.credentials`. If it
         finds a duplicate, it will prompt the user (where applicable)
-        and edit `self.new_credentials` accordingly.
+        and edit `self.new_credentials` or exit depending on user input.
 
         If another duplicate check method finds a duplicate in
         `self.credentials`, and the duplicate was overwritten in
-        `self.new_credentials` by one of the previously called functions,
+        `self.new_credentials` by one of the previously called methods,
         this would cause unwanted behavior.
 
         To prevent this, the duplicate check methods should check
@@ -202,7 +202,8 @@ class DuplicatesChecker:
         to the vault.
         """
         check_duplicate_functions = [
-            self.check_exact_duplicate
+            self.check_exact_duplicate,
+            self.check_same_everything_different_password
         ]
         if any(
             function()
@@ -224,14 +225,14 @@ class DuplicatesChecker:
         
         return False
 
-    def check_same_everything_different_password(self):
+    def check_same_everything_different_password(self) -> None:
         """
         Handle password update when a credential exists with the same
         service, username, and email, but different password.
 
+        Return False if the credential doesn't exist.
         If the credential exists, the user will be prompted on whether
         to update or discard the password.
-        Return False if the credential doesn't exist.
 
         Return True if the user decides to preserve the existing password.
         Return False and edit `self.new_credentials` if the user decides
@@ -263,9 +264,9 @@ class DuplicatesChecker:
 
         else: return True # Exit if the user enters invalid input 3 times.
 
+        # Overwrite or exit.
         if overwrite.lower() == "n": return True
 
-        # Overwrite.
         index = self.new_credentials.index(duplicate[0])
         self.new_credentials[index] = self.candidate
         return False
