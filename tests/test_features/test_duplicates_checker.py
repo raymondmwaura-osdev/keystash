@@ -74,3 +74,13 @@ def test_check_same_everything_different_password(credentials, mocker):
 
     assert input_mock.call_count == 3
     assert return_value
+
+    # Return False and correctly edit `self.new_credentials`.
+    input_mock = mocker.patch("src.features.add.input", return_value = "y")
+    duplicates_checker_instance = DuplicatesChecker(credentials, matching_candidate)
+    return_value = duplicates_checker_instance.check_same_everything_different_password()
+
+    expected_output = credentials[:]
+    expected_output[0] = matching_candidate
+    assert duplicates_checker_instance.new_credentials == expected_output
+    assert not return_value
