@@ -19,25 +19,25 @@ def credentials():
         }
     ]
 
-def test_check_exact_duplicate(credentials):
+def test_check_exact_duplicate(credentials, mocker):
     """
-    Assert that 'DuplicatesChecker.check_exact_duplicate' returns True
-    when an exact duplicate is found, and False otherwise.
+    Assert that 'DuplicatesChecker.check_exact_duplicate' exits the program
+    when an exact duplicate is found, and returns None otherwise.
     """
+    # Exact duplicate present.
+    system_exit_mock = mocker.patch("src.features.add.sys.exit")
     candidate = credentials[0]
-    return_value = DuplicatesChecker(
-        credentials, candidate).check_exact_duplicate()
-    assert return_value
+    DuplicatesChecker(credentials, candidate).check_exact_duplicate()
+    system_exit_mock.assert_called_once()
 
-    candidate = {
-        "service": "service3",
-        "password": "password3",
-        "username": "username3",
-        "email": "email3"
-    }
+    # Exact duplicate absent.
+    system_exit_mock = mocker.patch("src.features.add.sys.exit")
+    candidate = credentials[0].copy() # Create shallow copy to preserve 'credentials'.
+    candidate["service"] = "different service"
     return_value = DuplicatesChecker(
         credentials, candidate).check_exact_duplicate()
     assert not return_value
+    assert not system_exit_mock.called
 
 def test_check_same_everything_different_password(credentials, mocker):
     """
