@@ -213,17 +213,17 @@ class DuplicatesChecker:
 
         return self.credentials
 
-    def check_exact_duplicate(self):
+    def check_exact_duplicate(self) -> None:
         """
-        Return True if 'self.credentials' contain an exact duplicate of
-        'self.candidate'. Otherwise, return False.
+        Exit the program if 'self.credentials' contains an exact duplicate of
+        'self.candidate'. Otherwise, return None.
         """
         exact_duplicate = filter_credentials(self.credentials, **self.candidate)
-        if exact_duplicate:
+        if not exact_duplicate: return None
+
+        if exact_duplicate[0] == self.candidate:
             print("Identical credentials already exist! No changes made.")
-            return True
-        
-        return False
+            sys.exit(0)
 
     def check_same_everything_different_password(self) -> None:
         """
