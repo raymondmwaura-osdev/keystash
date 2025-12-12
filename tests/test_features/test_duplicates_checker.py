@@ -42,11 +42,11 @@ def test_check_exact_duplicate(credentials, mocker):
 def test_check_same_everything_different_password(credentials, mocker):
     """
     Assert that 'DuplicatesChecker.check_same_everything_different_password':
-        + Returns False when no duplicate is found.
-        + Returns True, without editing 'self.new_credentials' when the user
+        + Returns None when no duplicate is found.
+        + Exit the program, without editing 'self.new_credentials' when the user
             decides to preserve the existing credential.
-        + Prompts the user 3 times and returns True on invalid input.
-        + Returns False, and correctly edits 'self.new_credentials' when the
+        + Prompts the user 3 times and exits the program on invalid input.
+        + Returns None, and correctly edits 'self.new_credentials' when the
             user decides to overwrite the existing credential.
     """
     # Setup.
@@ -56,27 +56,29 @@ def test_check_same_everything_different_password(credentials, mocker):
     mismatching_candidate = credentials[0].copy()
     mismatching_candidate["service"] = "different service" # Cause service mismatch.
 
-    # Return False when no duplicate is found.
+    # Return None when no duplicate is found.
     return_value = DuplicatesChecker(
         credentials, mismatching_candidate).check_same_everything_different_password()
     assert not return_value
 
-    # Return True when user enters "n".
+    # Exit the program when user enters "n".
     mocker.patch("src.features.add.input", return_value = "n")
-    return_value = DuplicatesChecker(
-        credentials, matching_candidate).check_same_everything_different_password()
-    assert return_value
+    sys_exit_mock = mocker.patch("src.features.add.sys.exit")
+    DuplicatesChecker(credentials, matching_candidate
+        ).check_same_everything_different_password()
+    sys_exit_mock.assert_called_once()
 
-    # Call 'input' 3 times and return True with invalid input.
+    # Call 'input' 3 times and exit the program with invalid input.
     input_mock = mocker.patch("src.features.add.input", return_value = "invalid")
-    return_value = DuplicatesChecker(
-        credentials, matching_candidate).check_same_everything_different_password()
+    sys_exit_mock = mocker.patch("src.features.add.sys.exit")
+    DuplicatesChecker(credentials, matching_candidate
+        ).check_same_everything_different_password()
 
     assert input_mock.call_count == 3
-    assert return_value
+    sys_exit_mock.assert_called_once()
 
-    # Return False and correctly edit `self.new_credentials`.
-    input_mock = mocker.patch("src.features.add.input", return_value = "y")
+    # Return None and correctly edit `self.new_credentials`.
+    mocker.patch("src.features.add.input", return_value = "y")
     duplicates_checker_instance = DuplicatesChecker(credentials, matching_candidate)
     return_value = duplicates_checker_instance.check_same_everything_different_password()
 
