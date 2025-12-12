@@ -205,13 +205,8 @@ class DuplicatesChecker:
             self.check_exact_duplicate,
             self.check_same_everything_different_password
         ]
-        if any(
+        for function in check_duplicate_functions:
             function()
-            for function in check_duplicate_functions
-        ):
-            sys.exit(0)
-
-        return self.credentials
 
     def check_exact_duplicate(self) -> None:
         """
@@ -230,12 +225,12 @@ class DuplicatesChecker:
         Handle password update when a credential exists with the same
         service, username, and email, but different password.
 
-        Return False if the credential doesn't exist.
+        Return None if the credential doesn't exist.
         If the credential exists, the user will be prompted on whether
         to update or discard the password.
 
-        Return True if the user decides to preserve the existing password.
-        Return False and edit `self.new_credentials` if the user decides
+        Exit the program if the user decides to preserve the existing password.
+        Return None and edit `self.new_credentials` if the user decides
         to update the password.
         """
         # Scan.
@@ -245,7 +240,7 @@ class DuplicatesChecker:
             username=self.username,
             email=self.email
         )
-        if not duplicate: return False
+        if not duplicate: return None
 
         # Prompt.
         if self.username:
@@ -262,12 +257,12 @@ class DuplicatesChecker:
 
             print("Invalid input! Try Again.")
 
-        else: return True # Exit if the user enters invalid input 3 times.
+        else: sys.exit(1) # Exit if the user enters invalid input 3 times.
 
         # Overwrite or exit.
-        if overwrite.lower() == "n": return True
+        if overwrite.lower() == "n": sys.exit(1)
 
         index = self.new_credentials.index(duplicate[0])
         self.new_credentials[index] = self.candidate
-        return False
+        return None
 
