@@ -2,6 +2,39 @@
 from src.features import add
 import pytest
 
+def test_add(mocker):
+    """
+    Assert that `add.add` adds the new credentials to the vault.
+    """
+    vault_contents = [
+        {
+            "service": "service1",
+            "username": "username1",
+            "email": "email1",
+            "password": "password1"
+        }
+    ]
+    new_credential = {
+        "service": "service2",
+        "username": "username2",
+        "email": "email2",
+        "password": "password2"
+    }
+    expected_output = vault_contents[:]
+    expected_output.append(new_credential)
+
+    mocker.patch("src.features.add.get_password", return_value=new_credential["password"])
+    mocker.patch("src.features.add.storage.read_vault", return_value=vault_contents)
+    write_vault_mock = mocker.patch("src.features.add.storage.write_vault")
+
+    add.add(
+        new_credential["service"],
+        new_credential["username"],
+        new_credential["email"]
+    )
+
+    write_vault_mock.assert_called_with(expected_output)
+
 def test_generate_password():
     """
     Assert that `add.generate_password` returns a strong password.
