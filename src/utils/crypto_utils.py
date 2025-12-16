@@ -41,43 +41,37 @@ def decrypt(encrypted_contents: bytes, salt: bytes) -> bytes:
     Returns:
         bytes: The decrypted plaintext data.
     """
-    key = generate_key(constants.MASTER_PASSWORD, salt)
+    key = generate_key(salt)
     return Fernet(key).decrypt(encrypted_contents)
 
-def encrypt(contents: bytes, master_password: bytes) -> tuple[bytes, bytes]:
+def encrypt(contents: bytes) -> tuple[bytes, bytes]:
     """
-    Encrypt data using a key derived from a master password.
+    Encrypt data using a key derived from the master password.
 
     The function generates a random salt, derives a Fernet-compatible key
-    from the salt and provided password, and encrypts the given data.
+    from the salt and the master password, and encrypts the given data.
     The salt is returned alongside the ciphertext.
 
     Parameters:
         contents (bytes): The plaintext data to encrypt.
-        master_password (bytes): The master password used for key derivation.
 
     Returns:
         tuple[bytes, bytes]: A tuple containing the salt and the encrypted data `(salt, encrypted_data)`.
     """
-    # Generate key.
     salt = os.urandom(16)
-    key = generate_key(master_password, salt)
-
-    # Encrypt contents.
+    key = generate_key(salt)
     encrypted_contents = Fernet(key).encrypt(contents)
 
     return salt, encrypted_contents
 
-def generate_key(master_password: bytes, salt: bytes) -> bytes:
+def generate_key(salt: bytes) -> bytes:
     """
-    Derive a cryptographic key from a master password and salt.
+    Derive a cryptographic key from the master password and salt.
 
     This function uses the PBKDF2-HMAC key derivation function with SHA-256
-    to derive a 32-byte key from the given password and salt, making it
-    suitable for use with the Fernet symmetric encryption system.
+    to derive a 32-byte key from the master password and salt.
 
     Parameters:
-        master_password (bytes): The master password in bytes.
         salt (bytes): A cryptographically secure random salt.
 
     Returns:
@@ -89,7 +83,7 @@ def generate_key(master_password: bytes, salt: bytes) -> bytes:
         salt=salt,
         iterations=390000,
         backend=default_backend()
-    ).derive(master_password)
+    ).derive(constants.MASTER_PASSWORD)
 
     # Make safe for use with Fernet.
     key = base64.urlsafe_b64encode(key)
