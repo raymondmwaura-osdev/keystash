@@ -18,7 +18,7 @@ constants.MASTER_PASSWORD = getpass.getpass("Enter master password: "
 
 # Features.
 if cli_args.cmd == "add":
-    add.Add(
+    add.add(
         service=cli_args.service,
         username=cli_args.username,
         email=cli_args.email
