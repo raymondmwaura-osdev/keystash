@@ -8,12 +8,7 @@ The file contents are stored as a single Base64-encoded record
 in the following format:
 
     <base64(salt)>:<base64(ciphertext)>
-
-Functions:
-    - read_vault():
-        Read, decrypt, and return vault contents.
 """
-
 from src.utils import crypto_utils, constants
 import base64, json
 
@@ -51,3 +46,25 @@ def read_vault() -> list:
     ).decode("utf-8")
 
     return json.loads(contents)
+
+def write_vault(contents: list) -> None:
+    """
+    Encrypt, then write the given contents to the vault file.
+
+    Parameters:
+        contents:
+            A list optionally containing credential dictionaries.
+
+    Format:
+        <base64(salt)>:<base64(ciphertext)>
+    """
+    # Encrypt.
+    contents = json.dumps(contents)
+    salt, encrypted_contents = crypto_utils.encrypt(contents.encode("utf-8"))
+
+    # Make salt and encrypted data safe for writing to file.
+    salt = base64.b64encode(salt).decode("utf-8")
+    encrypted_contents = base64.b64encode(encrypted_contents).decode("utf-8")
+
+    final_content = f"{salt}:{encrypted_contents}"
+    constants.VAULT.write_text(final_content)
