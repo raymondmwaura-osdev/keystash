@@ -1,3 +1,7 @@
+"""
+Add credentials to the vault.
+"""
+
 from getpass import getpass
 from src.utils import storage
 import secrets, string
