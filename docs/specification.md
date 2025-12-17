@@ -22,3 +22,25 @@ This is how the program should work.
 
 + **Backup**: The program should have a copy of the vault file backed up somewhere. The file should be updated every time the vault is modified. The user can select where to backup the file; it can be on a secondary drive, google drive, onedrive, or any other location the user wants. Support for saving the file on the cloud will be added when the need arises. The program should support google drive initially.
 + **Password generation**: The program should be able to generate strong passwords.
+
+---
+
+## Commands
+
+### `add`
+
++ Add credentials to the vault.
++ Generate a uniqe ID for each credential added.
+
+### `search`
+
++ View all/specific credentials.
++ Allow the user to filter credentials show according to `service`, `username`, or `email`.
++ Don't show the password.
+
+### `get`
+
++ Copy a specific password to the clipboard.
++ The credential is specified using its unique ID.
+
+---
