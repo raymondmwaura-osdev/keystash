@@ -1,27 +1,27 @@
-# Specification
-
-This is how the program should work.
+# v1.0 Specification
 
 ## Essential Features
 
-+ **Save credentials**: The user should be able to add credentials to save. For now, the credentials will have the following fields:
++ **Save credentials**: The user should be able to add credentials to save. The credentials will have the following fields:
   - **service** (required): The name of the website the credential is for.
   - **password** (required): The password used to log in to the site.
-  - **username** (optional): Your username in the website.
+  - **username** (optional): Your username on the website.
   - **email** (optional): The email used to log in to the website.
 
-  Other fields may be added in the future, if the need arises.
+  Have a uniqe ID for each credential (100-999). This ID will be used to select the credential to delete or modify.
+
 + **Secure storage**: The credentials will be encrypted and saved in a file. The contents should be encrypted using AES encryption with a key derived from a password provided by the user. The user will be prompted for the password in the initial stages of the program. This ensures that only the user can read the credentials.
-+ **View saved credentials**: The user should be able to view the saved credentials. Instead of showing the password, the program should instead copy the password to the clipboard. This ensures that the password will not be in plain text at any given time.
-+ **Remove credentials**: The user should also be able to completely remove credentials from the vault. The program should ensure that the credentials are removed and unrecoverable, for added security. Since this action is not reversible, ask the user to do something like write the name of the service whose password is being deleted, to make sure that the user wants to proceed with the removal of the credentials.
++ **Generate password**: Give the user an option to have a strong password generated when saving credentials.
++ **View saved credentials**: The user should be able to view the saved credentials. Instead of showing the password, the program should instead copy the password to the clipboard. The password should not be in plain text at any given time.
++ **Remove credentials**: The user should also be able to completely remove credentials from the vault. Since this action is not reversible, ask the user to do something like write the name of the service whose password is being deleted, to make sure that the user wants to proceed with the removal of the credentials.
 + **Change master password**: Allow the user to change the password used to encrypt and decrypt the vault.
 
 ---
 
 ## Future Features
 
++ **Update Credentials**: Allow the user to update/modify saved credentials.
 + **Backup**: The program should have a copy of the vault file backed up somewhere. The file should be updated every time the vault is modified. The user can select where to backup the file; it can be on a secondary drive, google drive, onedrive, or any other location the user wants. Support for saving the file on the cloud will be added when the need arises. The program should support google drive initially.
-+ **Password generation**: The program should be able to generate strong passwords.
 
 ---
 
@@ -30,7 +30,8 @@ This is how the program should work.
 ### `add`
 
 + Add credentials to the vault.
-+ Generate a uniqe ID for each credential added.
++ Give the user an option to have a random strong password generated.
++ Have a uniqe ID for each credential (100-999).
 
 ### `search`
 
@@ -42,5 +43,13 @@ This is how the program should work.
 
 + Copy a specific password to the clipboard.
 + The credential is specified using its unique ID.
+
+### `remove`
+
++ Delete a credential from the vault.
+
+### `passwd`
+
++ Change the master password.
 
 ---
