@@ -10,7 +10,11 @@ in the following format:
     <base64(salt)>:<base64(ciphertext)>
 """
 from src.utils import crypto_utils, constants
-import base64, json
+import base64, json, pathlib
+
+# Ensure the vault directory exists.
+vault_dir = pathlib.Path.home() / ".local/share/keystash"
+vault_dir.mkdir(parents=True, exist_ok=True)
 
 def read_vault() -> list:
     """
