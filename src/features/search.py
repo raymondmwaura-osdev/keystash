@@ -19,14 +19,27 @@ def build_cli(subparsers):
     )
 
 def search(service: str, username: str, email: str) -> None:
+    """
+    Print the service, username, and email of credentials that
+    match the given parameters.
+
+    Parameters:
+        service: (str) Print credentials with matching service.
+        username: (str) Print credentials with matching username.
+        email: (str) Print credentials with matching email.
+
+        For all the parameters above, passing "any" will print
+        credentials with any value for that specific field. Passing
+        "any" for service will print credentials with any value for
+        the service.
+    """
     credentials = storage.read_vault()
     matching_credentials = helpers.filter_credentials(
         credentials, service=service,
         username=username, email=email
     )
 
-    if not matching_credentials:
-        print("No matching credentials found!")
+    if not matching_credentials: pass
 
     for credential in matching_credentials:
         print()
