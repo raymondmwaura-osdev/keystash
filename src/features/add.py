@@ -1,10 +1,9 @@
 """
 Add credentials to the vault.
 """
-
 from getpass import getpass
 from src.utils import storage
-import secrets, string
+import secrets, string, random
 
 def build_cli(subparsers):
     """
@@ -32,20 +31,23 @@ def add(service: str, username: str, email: str) -> None:
     """
     Add credential to the vault.
 
-    This function takes the service, password, username, and
-    email, and writes them to the vault. The service, username
-    and email are passed as parameters. The user is securely
-    prompted for the password.
+    This function takes the service, username, and email as
+    parameters, prompts the user for the password, and generates
+    the credential's unique ID. It also generates a strong password
+    when the user doesn't provide one.
     """
+    vault_contents = storage.read_vault()
+    id = get_unique_id(vault_contents)
     password = get_password()
     candidate = {
         "service": service,
         "password": password,
         "username": username,
-        "email": email
+        "email": email,
+        "id": id
     }
 
-    vault_contents = storage.read_vault()
+    # Write to vault.
     vault_contents.append(candidate)
     storage.write_vault(vault_contents)
 
@@ -88,3 +90,24 @@ def generate_password():
             break
 
     return password
+
+def get_unique_id(existing_credentials):
+    """
+    Generate a unique ID between 100 and 999 (inclusive) that is not already in use.
+    
+    Parameters:
+    existing_credentials (list): A list of dictionaries, each containing an "ID" key
+    
+    Returns:
+    int: A unique ID between 100 and 999
+    
+    Raises:
+    ValueError: If all possible IDs are already taken
+    """
+    existing_ids = {record["ID"] for record in existing_credentials}
+    available_ids = set(range(100, 1000)) - existing_ids
+    
+    if not available_ids:
+        raise ValueError("All IDs between 100 and 999 are already taken")
+    
+    return random.choice(list(available_ids))
