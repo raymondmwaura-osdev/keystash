@@ -104,7 +104,7 @@ def get_unique_id(existing_credentials):
     Raises:
     ValueError: If all possible IDs are already taken
     """
-    existing_ids = {record["ID"] for record in existing_credentials}
+    existing_ids = {record["id"] for record in existing_credentials}
     available_ids = set(range(100, 1000)) - existing_ids
     
     if not available_ids:
