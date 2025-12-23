@@ -1,4 +1,7 @@
 import pathlib
 
 MASTER_PASSWORD = None	# Will contain the master password provided by the user.
-VAULT = pathlib.Path().home() / ".local/share/keystash/vault.json"
+
+DATA_DIR = pathlib.Path().home() / ".local/share/keystash"
+VAULT = DATA_DIR / "vault"
+HASH = DATA_DIR / "hash"
