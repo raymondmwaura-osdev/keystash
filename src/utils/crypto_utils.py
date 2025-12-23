@@ -17,15 +17,12 @@ Functions:
         Decrypts ciphertext using the provided master password and salt and
         returns the data.
 """
-
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 from src.utils import constants
 import pathlib, base64, os
-
-# NOTE: The functions are arranged alphabetically.
 
 def decrypt(encrypted_contents: bytes, salt: bytes) -> bytes:
     """
@@ -89,12 +86,3 @@ def generate_key(salt: bytes) -> bytes:
     key = base64.urlsafe_b64encode(key)
 
     return key
-
-def get_master_password():
-    """
-    Get the master password from the user.
-    Securely prompt for the password using 'getpass'.
-    Check if the password is correct by hashing the given password.
-    The hash should match the hash stored in the password file.
-    """
-    pass
