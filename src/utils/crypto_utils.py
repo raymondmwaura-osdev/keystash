@@ -80,7 +80,7 @@ def generate_key(salt: bytes) -> bytes:
         salt=salt,
         iterations=390000,
         backend=default_backend()
-    ).derive(constants.MASTER_PASSWORD)
+    ).derive(constants.MASTER_PASSWORD.encode("utf-8"))
 
     # Make safe for use with Fernet.
     key = base64.urlsafe_b64encode(key)
