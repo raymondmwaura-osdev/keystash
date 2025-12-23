@@ -27,7 +27,7 @@ def passwd():
 
     The password hash is stored in 'constants.HASH'.
     """
-    print("Changing master password.")
+    print("Setting master password.")
     for _ in range(3):
         new_password = getpass("Enter new master password: ")
         new_password2 = getpass("Enter new master password again: ")
