@@ -46,3 +46,4 @@ def passwd():
         bcrypt.gensalt()
     )
     constants.HASH.write_bytes(password_hash)
+    print("Master password set successfully!")
