@@ -11,18 +11,21 @@ def test_add(mocker):
             "service": "service1",
             "username": "username1",
             "email": "email1",
-            "password": "password1"
+            "password": "password1",
+            "id": 101
         }
     ]
     new_credential = {
         "service": "service2",
         "username": "username2",
         "email": "email2",
-        "password": "password2"
+        "password": "password2",
+        "id": 102
     }
     expected_output = vault_contents[:]
     expected_output.append(new_credential)
 
+    mocker.patch("src.features.add.get_unique_id", return_value=new_credential["id"])
     mocker.patch("src.features.add.get_password", return_value=new_credential["password"])
     mocker.patch("src.features.add.storage.read_vault", return_value=vault_contents)
     write_vault_mock = mocker.patch("src.features.add.storage.write_vault")
