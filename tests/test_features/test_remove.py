@@ -1,6 +1,5 @@
 # Unit tests for `src.features.remove`.
 from src.features import remove
-from io import StringIO
 import pytest
 import sys
 
