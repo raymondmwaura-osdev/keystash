@@ -17,6 +17,10 @@ def filter_credentials(
         - "any": the field is ignored and all values match.
 
     Parameters:
+        credentials:
+            A list of credential dictionaries with the following keys:
+                service, password, username, and email.
+
         service, password, username, email:
             The rule for each field. Each must be either:
             - A concrete value (string)
