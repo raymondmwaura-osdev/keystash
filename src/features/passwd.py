@@ -44,6 +44,7 @@ def passwd():
     password_hash = bcrypt.hashpw(
         new_password.encode("utf-8"),
         bcrypt.gensalt()
-    )
-    constants.HASH.write_bytes(password_hash)
+    ).decode("utf-8")
+
+    constants.HASH.write_text(password_hash)
     print("Master password set successfully!")
