@@ -32,11 +32,11 @@ class TestPasswd:
         sys_exit_mock = mocker.patch("src.features.passwd.sys.exit")
         hashpw_mock = mocker.patch(
             "src.features.passwd.bcrypt.hashpw",
-            return_value="password_hash"
+            return_value=b"password_hash"
         )
         hash_mock = mocker.patch("src.features.passwd.constants.HASH")
 
         passwd.passwd()
 
         assert not sys_exit_mock.called
-        hash_mock.write_bytes.assert_called_with("password_hash")
+        hash_mock.write_text.assert_called_with("password_hash")
