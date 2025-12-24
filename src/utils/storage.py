@@ -12,9 +12,8 @@ in the following format:
 from src.utils import crypto_utils, constants
 import base64, json, pathlib
 
-# Ensure the vault directory exists.
-vault_dir = pathlib.Path.home() / ".local/share/keystash"
-vault_dir.mkdir(parents=True, exist_ok=True)
+# Ensure the data directory exists.
+constants.DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def read_vault() -> list:
     """
