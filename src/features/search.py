@@ -39,8 +39,6 @@ def search(service: str, username: str, email: str) -> None:
         username=username, email=email
     )
 
-    if not matching_credentials: pass
-
     for credential in matching_credentials:
         print()
         for key, value in credential.items():
