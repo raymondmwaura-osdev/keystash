@@ -1,4 +1,4 @@
-from src.features import add, search, passwd
+from src.features import add, search, passwd, remove, get
 from src.utils import constants, storage
 from getpass import getpass
 import argparse, sys, bcrypt
@@ -10,7 +10,9 @@ subparsers = parser.add_subparsers(dest="cmd")
 build_cli_functions = [
     add.build_cli,
     search.build_cli,
-    passwd.build_cli
+    passwd.build_cli,
+    remove.build_cli,
+    get.build_cli
 ]
 for build_cli in build_cli_functions:
     build_cli(subparsers)
@@ -19,13 +21,13 @@ cli_args = parser.parse_args()
 
 # Verify user identity.
 if constants.HASH.exists():
-    password_hash = constants.HASH.read_bytes()
+    password_hash = constants.HASH.read_text().strip()
     for _ in range(3):
-        password = getpass("Enter master password: ")
+        password = getpass("Enter master password: ").strip()
         
         if bcrypt.checkpw(
             password.encode("utf-8"),
-            password_hash
+            password_hash.encode("utf-8")
         ):
             constants.MASTER_PASSWORD = password
             break
@@ -56,3 +58,9 @@ elif cli_args.cmd == "search":
 
 elif cli_args.cmd == "passwd":
     passwd.passwd()
+
+elif cli_args.cmd == "remove":
+    remove.remove(int(cli_args.id))
+
+elif cli_args.cmd == "get":
+    get.get(int(cli_args.id))
