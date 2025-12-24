@@ -44,7 +44,7 @@ def remove(id: int) -> None:
         print("Confirmation failed. Not removing credential.")
         sys.exit()
 
-    if confirmation == "n":
+    if confirmation.lower() == "n":
         print("Not removing credential.")
         sys.exit()
 
