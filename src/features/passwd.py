@@ -42,7 +42,7 @@ def passwd():
 
     # Save password hash.
     password_hash = bcrypt.hashpw(
-        new_password.encode("utf-8"),
+        new_password.strip().encode("utf-8"),
         bcrypt.gensalt()
     ).decode("utf-8")
 
