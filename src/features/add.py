@@ -50,6 +50,7 @@ def add(service: str, username: str, email: str) -> None:
     # Write to vault.
     vault_contents.append(candidate)
     storage.write_vault(vault_contents)
+    print("Credential saved successfully!")
 
 def get_password() -> str:
     """
