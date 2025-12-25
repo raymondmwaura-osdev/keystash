@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "keystash"
+version = "0.1.0"
+description = "A lightweight CLI password manager for secure credential storage."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Raymond Mwaura", email = "raymond.mwaura.dev@gmail.com"}
+]
+keywords = ["password", "manager", "cli-based", "cli"]
+dependencies = [
+    "bcrypt>=5.0.0",
+    "cryptography>=46.0.3",
+    "pyperclip>=1.11.0"
+]
+
+[project.scripts]
+keystash = "src.main:main"
+
+[project.urls]
+Homepage = "https://github.com/raymondmwaura-osdev/keystash"
+Documentation = "https://github.com/raymondmwaura-osdev/keystash#readme"
+Repository = "https://github.com/raymondmwaura-osdev/keystash"
+
+[tool.setuptools]
+packages = ["src", "src.features", "src.utils"]
