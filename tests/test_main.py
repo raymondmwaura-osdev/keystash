@@ -12,18 +12,21 @@ class TestVerifyIdentity:
         Assert that 'main.verify_identity' does not exit when 'constants.HASH'
         doesn't exist and 'cmd' is "passwd".
         """
+        sys_exit_mock = mocker.patch("src.main.sys.exit")
         hash_mock = mocker.patch("src.main.constants.HASH")
         hash_mock.exists.return_value = False
 
-        with pytest.raises(SystemExit):
-            main.verify_identity(None)
+        # cmd == "passwd"
+        main.verify_identity("passwd")
+        assert not sys_exit_mock.called
 
+        # cmd != "passwd"
+        main.verify_identity(None)
+        
         output = capsys.readouterr()
         assert "Master password not set." in output.out
+        sys_exit_mock.assert_called()
         
-        # Test that 'sys.exit' is not called when cmd == "passwd".
-        main.verify_identity("passwd")
-
     def test_correct_password(self, mocker):
         pass
 
