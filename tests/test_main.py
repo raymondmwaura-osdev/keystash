@@ -1,6 +1,6 @@
 # Unit tests for `src.main`.
 from src import main
-import pytest
+import pytest, bcrypt
 
 class TestVerifyIdentity:
     """Unit tests for 'main.verify_identity'."""
@@ -22,13 +22,30 @@ class TestVerifyIdentity:
 
         # cmd != "passwd"
         main.verify_identity(None)
-        
+
         output = capsys.readouterr()
         assert "Master password not set." in output.out
         sys_exit_mock.assert_called()
         
     def test_correct_password(self, mocker):
-        pass
+        """
+        Assert `main.verify_identity` returns the password when the correct
+        password is entered by the user.
+        """
+        password = "StrongPassword123"
+        password_hash = bcrypt.hashpw(
+            password.encode("utf-8"),
+            bcrypt.gensalt()
+        )
+
+        hash_file_mock = mocker.patch("src.main.constants.HASH")
+        hash_file_mock.read_text.return_value = password_hash.decode("utf-8")
+        getpass_mock = mocker.patch("src.main.getpass", return_value = password)
+
+        returned_password = main.verify_identity(None)
+
+        getpass_mock.assert_called_once()
+        assert returned_password == password
 
     def test_incorrect_password_three_times(self, mocker):
         pass
