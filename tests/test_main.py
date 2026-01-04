@@ -16,18 +16,15 @@ class TestVerifyIdentity:
         return password, password_hash
 
     @pytest.fixture
-    def mock_hash_file(self, mocker, password_fixture):
-        """
-        Return a mock object for "src.main.constants.HASH" along with the
-        password string used to derive the hash stored in the file.
-        """
+    def hash_file_mock(self, mocker, password_fixture):
+        """Mock and return 'src.main.constants.HASH'."""
         password, password_hash = password_fixture
         
-        hash_file_mock = mocker.patch("src.main.constants.HASH")
-        hash_file_mock.exists.return_value = True
-        hash_file_mock.read_text.return_value = password_hash.decode("utf-8")
+        mock = mocker.patch("src.main.constants.HASH")
+        mock.exists.return_value = True
+        mock.read_text.return_value = password_hash.decode("utf-8")
 
-        return hash_file_mock, password
+        return mock
 
     def test_no_hash(self, mocker, capsys):
         """
@@ -52,10 +49,10 @@ class TestVerifyIdentity:
         assert "Master password not set." in output.out
         sys_exit_mock.assert_called()
         
-    def test_verify_identity_success_first_attempt(self, mocker, mock_hash_file):
+    def test_verify_identity_success_first_attempt(self, mocker, password_fixture, hash_file_mock):
         """Test successful verification on first password attempt."""
         # Setup
-        hash_file_mock, password = mock_hash_file
+        password = password_fixture[0]
         mocker.patch("src.main.getpass", return_value=password)
         
         # Execute
@@ -66,11 +63,10 @@ class TestVerifyIdentity:
         hash_file_mock.exists.assert_called_once()
         hash_file_mock.read_text.assert_called_once()
 
-    def test_verify_identity_success_third_attempt(self, mocker, mock_hash_file, password_fixture):
+    def test_verify_identity_success_third_attempt(self, mocker, password_fixture, hash_file_mock):
         """Test successful verification on third password attempt."""
         # Setup
         password = password_fixture[0]
-        
         mocker.patch("src.main.getpass", side_effect=["wrong1", "wrong2", password])
         mock_print = mocker.patch("builtins.print")
         
