@@ -20,6 +20,7 @@ def build_cli():
     subparsers = parser.add_subparsers(dest="cmd")
 
     build_cli_functions = [
+        # Have all features listed here.
         add.build_cli,
         search.build_cli,
         passwd.build_cli,
@@ -69,11 +70,25 @@ def main():
 
     if cli_args.cmd == None:
         # Call interactive mode function.
-        pass
+        interactive_mode(parser)
 
     else:
         # Call a function that handles only one command.
         handle_one_command(cli_args.cmd)
+
+def interactive_mode(parser):
+    while True:
+        command = input("(keystash) ").strip()
+
+        if not command: continue
+        elif command in ("exit", "quit"):
+            sys.exit()
+
+        try:
+            args = parser.parse_args(command.split(" "))
+            print(args)
+        except SystemExit:
+            continue
 
 def handle_one_command(cmd):
     """
