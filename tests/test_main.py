@@ -77,3 +77,18 @@ class TestVerifyIdentity:
         assert result == password
         assert mock_print.call_count == 2
         mock_print.assert_any_call("Incorrect master password!")
+
+    def test_verify_identity_fails_after_three_attempts(self, mocker, hash_file_mock):
+        """Test that system exits after three incorrect password attempts."""
+        # Setup
+        mocker.patch("src.main.getpass", return_value="wrong_password")
+        mock_print = mocker.patch("builtins.print")
+        
+        # Execute
+        with pytest.raises(SystemExit):
+            main.verify_identity(None)
+        
+        # Assert
+        assert mock_print.call_count == 3
+        mock_print.assert_called_with("Incorrect master password!")
+
