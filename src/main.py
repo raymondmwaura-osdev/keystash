@@ -1,10 +1,3 @@
-"""
-Interactive mode plans:
-    If cli_args.cmd == None, enter interactive mode.
-    If the user runs keystash with a specific command, run the command and exit.
-    If the user runs a specific command and uses the `-i/--interactive` flag, execute the command then enter interactive mode.
-    The `-i/--interactive` flag should only be on the main parser, not in every command's subparser.
-"""
 from src.features import add, search, passwd, remove, get
 from src.utils import constants, storage
 from getpass import getpass
@@ -65,18 +58,19 @@ def verify_identity(cmd: None | str) -> str:
 
 def main():
     parser = build_cli()
-    cli_args = parser.parse_args()
-    constants.MASTER_PASSWORD = verify_identity(cli_args.cmd)
+    cli_namespace = parser.parse_args()
+    constants.MASTER_PASSWORD = verify_identity(cli_namespace.cmd)
 
-    if cli_args.cmd == None:
-        # Call interactive mode function.
+    if cli_namespace.cmd == None:
         interactive_mode(parser)
 
     else:
-        # Call a function that handles only one command.
-        handle_one_command(cli_args.cmd)
+        run_command(cli_namespace)
 
 def interactive_mode(parser):
+    """
+    Continuously prompt the user for commands and execute them.
+    """
     while True:
         command = input("(keystash) ").strip()
 
@@ -85,37 +79,37 @@ def interactive_mode(parser):
             sys.exit()
 
         try:
-            args = parser.parse_args(command.split(" "))
-            print(args)
-        except SystemExit:
+            cli_namespace = parser.parse_args(command.split(" "))
+            run_command(cli_namespace)
+        except SystemExit: # Prevent exiting when argparse gets an invalid command/switch.
             continue
 
-def handle_one_command(cmd):
+def run_command(cli_namespace):
     """
-    Run one command passed in from the user and exit.
+    Run the command given by the user.
     """
-    if cmd == "add":
+    if cli_namespace.cmd == "add":
         add.add(
-            service=cli_args.service,
-            username=cli_args.username,
-            email=cli_args.email
+            service=cli_namespace.service,
+            username=cli_namespace.username,
+            email=cli_namespace.email
         )
 
-    elif cmd == "search":
+    elif cli_namespace.cmd == "search":
         search.search(
-            service=cli_args.service,
-            username=cli_args.username,
-            email=cli_args.email
+            service=cli_namespace.service,
+            username=cli_namespace.username,
+            email=cli_namespace.email
         )
 
-    elif cmd == "passwd":
+    elif cli_namespace.cmd == "passwd":
         passwd.passwd()
 
-    elif cmd == "remove":
-        remove.remove(int(cli_args.id))
+    elif cli_namespace.cmd == "remove":
+        remove.remove(int(cli_namespace.id))
 
-    elif cmd == "get":
-        get.get(int(cli_args.id))
+    elif cli_namespace.cmd == "get":
+        get.get(int(cli_namespace.id))
 
 if __name__ == "__main__":
     main()
