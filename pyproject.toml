@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "keystash"
-version = "0.1.0"
-description = "A lightweight CLI password manager for secure credential storage."
+version = "0.1.1"
+description = "A lightweight CLI password manager for local, secure credential storage."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [
     {name = "Raymond Mwaura", email = "raymond.mwaura.dev@gmail.com"}
 ]
-keywords = ["password", "manager", "cli-based", "cli"]
+keywords = ["password", "manager", "cli-based", "cli", "local", "storage", "credential", "credentials"]
 dependencies = [
     "bcrypt>=5.0.0",
     "cryptography>=46.0.3",
