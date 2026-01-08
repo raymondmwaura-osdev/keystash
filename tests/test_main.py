@@ -2,6 +2,136 @@
 from src import main
 import pytest, bcrypt
 
+class TestInteractiveMode:
+    """Unit tests for `main.interactive_mode`."""
+    def test_interactive_mode_exit_command(self, mocker):
+        """Test that 'exit' command terminates the loop."""
+        mock_input = mocker.patch('builtins.input', return_value='exit')
+        
+        with pytest.raises(SystemExit):
+            parser = mocker.Mock()
+            main.interactive_mode(parser)
+        
+        mock_input.assert_called_once_with("(keystash) ")
+
+    def test_interactive_mode_quit_command(self, mocker):
+        """Test that 'quit' command terminates the loop."""
+        mock_input = mocker.patch('builtins.input', return_value='quit')
+        
+        with pytest.raises(SystemExit):
+            parser = mocker.Mock()
+            main.interactive_mode(parser)
+            
+        mock_input.assert_called_once_with("(keystash) ")
+
+    def test_interactive_mode_empty_command(self, mocker):
+        """Test that empty input is skipped and continues loop."""
+        mock_input = mocker.patch('builtins.input', side_effect=['', 'exit'])
+        
+        with pytest.raises(SystemExit):
+            parser = mocker.Mock()
+            main.interactive_mode(parser)
+        
+        assert mock_input.call_count == 2
+
+    def test_interactive_mode_whitespace_command(self, mocker):
+        """Test that whitespace-only input is skipped."""
+        mock_input = mocker.patch('builtins.input', side_effect=['   ', '\t', 'exit'])
+        
+        with pytest.raises(SystemExit):
+            parser = mocker.Mock()
+            main.interactive_mode(parser)
+        
+        assert mock_input.call_count == 3
+
+    def test_interactive_mode_valid_command(self, mocker):
+        """Test that valid commands are parsed and executed."""
+        parser = mocker.Mock()
+        mock_namespace = mocker.Mock()
+        parser.parse_args.return_value = mock_namespace
+        
+        mock_input = mocker.patch('builtins.input', side_effect=['add -s service', 'exit'])
+        mock_run_command = mocker.patch('src.main.run_command')
+        
+        with pytest.raises(SystemExit):
+            main.interactive_mode(parser)
+        
+        parser.parse_args.assert_called_once_with(['add', '-s', 'service'])
+        mock_run_command.assert_called_once_with(mock_namespace)
+
+    def test_interactive_mode_invalid_command_continues(self, mocker):
+        """Test that SystemExit from argparse is caught and loop continues."""
+        parser = mocker.Mock()
+        parser.parse_args.side_effect = SystemExit()
+        
+        mock_input = mocker.patch('builtins.input', side_effect=['invalid --bad-flag', 'exit'])
+        mock_run_command = mocker.patch("src.main.run_command")
+        
+        with pytest.raises(SystemExit):
+            main.interactive_mode(parser)
+        
+        assert parser.parse_args.call_count == 1
+        mock_run_command.assert_not_called()
+        assert mock_input.call_count == 2
+
+    def test_interactive_mode_multiple_commands(self, mocker):
+        """Test executing multiple valid commands before exit."""
+        parser = mocker.Mock()
+        namespace1 = mocker.Mock()
+        namespace2 = mocker.Mock()
+        namespace3 = mocker.Mock()
+        parser.parse_args.side_effect = [namespace1, namespace2, namespace3]
+        
+        mock_input = mocker.patch('builtins.input', 
+            side_effect=['cmd1', 'cmd2 -f value', 'cmd3 --flag value', 'exit'])
+        mock_run_command = mocker.patch('src.main.run_command')
+        
+        with pytest.raises(SystemExit):
+            main.interactive_mode(parser)
+        
+        assert parser.parse_args.call_count == 3
+        parser.parse_args.assert_any_call(['cmd1'])
+        parser.parse_args.assert_any_call(['cmd2', '-f', 'value'])
+        parser.parse_args.assert_any_call(['cmd3', '--flag', 'value'])
+        
+        assert mock_run_command.call_count == 3
+        mock_run_command.assert_any_call(namespace1)
+        mock_run_command.assert_any_call(namespace2)
+        mock_run_command.assert_any_call(namespace3)
+
+    def test_interactive_mode_command_with_multiple_args(self, mocker):
+        """Test that commands with multiple arguments are split correctly."""
+        parser = mocker.Mock()
+        mock_namespace = mocker.Mock()
+        parser.parse_args.return_value = mock_namespace
+        
+        mock_input = mocker.patch('builtins.input', 
+            side_effect=['set key value --option flag', 'exit'])
+        mock_run_command = mocker.patch('src.main.run_command')
+        
+        with pytest.raises(SystemExit):
+            main.interactive_mode(parser)
+        
+        parser.parse_args.assert_called_once_with(['set', 'key', 'value', '--option', 'flag'])
+        mock_run_command.assert_called_once_with(mock_namespace)
+
+    def test_interactive_mode_mixed_valid_invalid_commands(self, mocker):
+        """Test handling mix of valid commands, invalid commands, and empty input."""
+        parser = mocker.Mock()
+        valid_namespace = mocker.Mock()
+        parser.parse_args.side_effect = [valid_namespace, SystemExit, valid_namespace]
+        
+        mock_input = mocker.patch('builtins.input', 
+            side_effect=['valid', '', 'invalid', 'valid2', 'exit'])
+        mock_run_command = mocker.patch('src.main.run_command')
+        
+        with pytest.raises(SystemExit):
+            main.interactive_mode(parser)
+        
+        assert mock_input.call_count == 5
+        assert parser.parse_args.call_count == 3
+        assert mock_run_command.call_count == 2
+
 class TestVerifyIdentity:
     """Unit tests for 'main.verify_identity'."""
     @pytest.fixture
