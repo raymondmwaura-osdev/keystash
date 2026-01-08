@@ -9,5 +9,6 @@
 + Remove all `print` statements and use `logger` instead.
 + Copy the password to the clipboard when it is automatically generated in the `add` feature.
 + When changing the password using `keystash passwd` decrypt the vault then encrypt it with the new password.
-
 + In `main.py`, when calling the features functions, instead of passing all the parameters from the command line, pass only the namespace created by argparse, then the features will read the data needed from the namespace.
++ Add `-v/--version` option for displaying the program's version.
++ Add a "name" field in the vault as an alternative for "id". Allow the user to do `get <name>` instead of `get <id>`.
