@@ -134,7 +134,7 @@ class TestInteractiveMode:
 
 class TestVerifyIdentity:
     """Unit tests for 'main.verify_identity'."""
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def password_fixture(self):
         """Return a password string and its hash."""
         password = "StrongPassword123"
@@ -181,44 +181,87 @@ class TestVerifyIdentity:
         
     def test_verify_identity_success_first_attempt(self, mocker, password_fixture, hash_file_mock):
         """Test successful verification on first password attempt."""
-        # Setup
         password = password_fixture[0]
         mocker.patch("src.main.getpass", return_value=password)
         
-        # Execute
         result = main.verify_identity(None)
         
-        # Assert
         assert result == password
         hash_file_mock.exists.assert_called_once()
         hash_file_mock.read_text.assert_called_once()
 
     def test_verify_identity_success_third_attempt(self, mocker, password_fixture, hash_file_mock):
         """Test successful verification on third password attempt."""
-        # Setup
         password = password_fixture[0]
         mocker.patch("src.main.getpass", side_effect=["wrong1", "wrong2", password])
         mock_print = mocker.patch("builtins.print")
         
-        # Execute
         result = main.verify_identity(None)
         
-        # Assert
         assert result == password
         assert mock_print.call_count == 2
         mock_print.assert_any_call("Incorrect master password!")
 
     def test_verify_identity_fails_after_three_attempts(self, mocker, hash_file_mock):
         """Test that system exits after three incorrect password attempts."""
-        # Setup
         mocker.patch("src.main.getpass", return_value="wrong_password")
         mock_print = mocker.patch("builtins.print")
         
-        # Execute
         with pytest.raises(SystemExit):
             main.verify_identity(None)
         
-        # Assert
         assert mock_print.call_count == 3
         mock_print.assert_called_with("Incorrect master password!")
 
+    def test_verify_identity_no_hash_file_non_passwd_command(self, mocker):
+        """Test exit when hash file doesn't exist and command is not 'passwd'."""
+        mock_hash = mocker.patch("src.main.constants.HASH")
+        mock_hash.exists.return_value = False
+        
+        mock_print = mocker.patch("builtins.print")
+        
+        with pytest.raises(SystemExit):
+            main.verify_identity(None)
+        
+        mock_hash.exists.assert_called_once()
+        assert mock_print.call_count == 2
+        mock_print.assert_any_call("Master password not set.")
+        mock_print.assert_any_call("Use 'keystash passwd' to set the master password.")
+
+    def test_verify_identity_no_hash_file_passwd_command(self, mocker):
+        """Test that function returns normally when hash doesn't exist but command is 'passwd'."""
+        mock_hash = mocker.patch("src.main.constants.HASH")
+        mock_hash.exists.return_value = False
+        
+        mock_print = mocker.patch("builtins.print")
+        mock_exit = mocker.patch("src.main.sys.exit")
+        
+        result = main.verify_identity("passwd")
+        
+        assert result is None
+        mock_hash.exists.assert_called_once()
+        mock_print.assert_not_called()
+        mock_exit.assert_not_called()
+
+    def test_verify_identity_strips_whitespace(self, mocker, password_fixture, hash_file_mock):
+        """Test that password whitespace is properly stripped."""
+        password, password_hash = password_fixture
+        hash_file_mock.read_text.return_value = f"  {password_hash.decode('utf-8')}  \n"
+        
+        mocker.patch("src.main.getpass", return_value=f"  {password}  ")
+        
+        result = main.verify_identity(None)
+        
+        assert result == password
+
+    def test_verify_identity_empty_password_input(self, mocker, password_fixture, hash_file_mock):
+        """Test behavior with empty password input."""
+        password, password_hash = password_fixture
+        
+        mocker.patch("src.main.getpass", side_effect=["", "", password])
+        mock_print = mocker.patch("builtins.print")
+        
+        result = main.verify_identity(None)
+        
+        assert result == password
+        assert mock_print.call_count == 2
