@@ -1,6 +1,6 @@
 # KeyStash
 
-KeyStash is a lightweight CLI password manager that securely stores your passwords locally. KeyStash stores your passwords and credentials in an encrypted vault file located at `~/.local/share/keystash`.
+KeyStash is a lightweight CLI password manager that securely stores your passwords locally. It stores your passwords and credentials in an encrypted vault file located at `~/.local/share/keystash`.
 
 ---
 
@@ -41,13 +41,13 @@ Enter new master password again:
 Master password set successfully!
 ```
 
-**Note**: The password you type in will not be shown on the screen for security reasons.
+**Note**: Your password will not be displayed on screen for security reasons.
 
-The master password is used to verify your identity and generate a key for encrypting and decrypting the vault. **Don't forget this password.** There is currently no way to recover your credentials without the master password. Account recovery functionality will be implemented in a future release.
+The master password is used to verify your identity and generate a key for encrypting and decrypting the vault. **Don't forget this password.** There is currently no way to recover your credentials without it. Account recovery functionality will be implemented in a future release.
 
-### Interactive mode
+### Interactive Mode
 
-Type `keystash` or `keystash -i` or `keystash --interactive` to enter interactive mode.
+Type `keystash`, `keystash -i`, or `keystash --interactive` to enter interactive mode.
 
 ```
 $ keystash
@@ -55,9 +55,9 @@ Enter master password:
 (keystash) 
 ```
 
-Normally, keystash will prompt for the master password everytime it is ran from the command line. In interactive mode, keystash continuously prompts for commands in a persistent session. This allows you to run multiple keystash commands without having to enter the master password every time.
+Normally, KeyStash prompts for the master password every time it's run from the command line. In interactive mode, KeyStash continuously prompts for commands in a persistent session. This allows you to run multiple commands without re-entering the master password each time.
 
-To exit interactive mode and kill the session, use `exit` or `quit`.
+To exit interactive mode and end the session, use `exit` or `quit`.
 
 ### Add Credentials
 
@@ -73,9 +73,9 @@ Credential saved successfully!
 ```
 
 + `-s` specifies the service (required), `-u` specifies the username (optional), `-e` specifies the email (optional)
-+ You'll be prompted for the password you want to save to the vault. You can leave this field empty to have the program generate a strong password for you.
++ You'll be prompted for the password you want to save to the vault. Leave this field empty to have the program generate a strong password for you.
 
-**Note**: The password you type in will not be shown on the screen for security reasons.
+**Note**: Your password will not be displayed on screen for security reasons.
 
 ### View Credentials
 
@@ -97,7 +97,7 @@ With `search`, you can specify filter fields (all are optional):
 + `-u USERNAME`: Show only credentials with the specified username
 + `-e EMAIL`: Show only credentials with the specified email
 
-The command will show all credentials in the vault if none of the filter fields is specified.
+If no filter fields are specified, the command will display all credentials in the vault.
 
 ### Get the Password
 
@@ -118,7 +118,7 @@ Id: 699
 Password copied to clipboard.
 ```
 
-`get` copies the password to your system's clipboard. You can then paste the password wherever needed. For security reasons, the password is not displayed on the terminal.
+`get` copies the password to your system's clipboard, allowing you to paste it wherever needed. For security reasons, the password is not displayed in the terminal.
 
 ### Remove Credentials
 
