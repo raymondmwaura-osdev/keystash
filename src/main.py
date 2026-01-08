@@ -10,6 +10,9 @@ def build_cli():
     Return the top level parser got by `argparse.ArgumentParser()`.
     """
     parser = argparse.ArgumentParser(prog="KeyStash")
+    parser.add_argument("-i", "--interactive",
+        dest="interactive_mode", action="store_true")
+
     subparsers = parser.add_subparsers(dest="cmd")
 
     build_cli_functions = [
@@ -61,7 +64,8 @@ def main():
     cli_namespace = parser.parse_args()
     constants.MASTER_PASSWORD = verify_identity(cli_namespace.cmd)
 
-    if cli_namespace.cmd == None:
+    if cli_namespace.interactive_mode or not cli_namespace.cmd:
+        run_command(cli_namespace)
         interactive_mode(parser)
 
     else:
